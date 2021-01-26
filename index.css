@@ -1,0 +1,20 @@
+
+.form-title {
+	margin: auto;
+	width: 50%;
+	text-align: center;
+}
+
+.form-container {
+	border: 1px solid black;
+	margin: auto;
+	width: 50%;
+}
+
+.form-element {
+	margin: 20px 20px 10px 10px;
+}
+
+.form-submit {
+	margin: 10px 20px 20px 10px;
+}

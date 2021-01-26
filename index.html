@@ -1,10 +1,27 @@
 <html>
 	<head>
 		<title>CONTROLf</title>
+		<link rel = "stylesheet" href = "http://controlf.com/index.css">
 	</head>
 	<body>
-		<div class = "">
-			
+		<div class = "form-title">
+			<h1>CONTROLf</h1>
+		</div>
+
+		<div class = "form-container">
+			<form method = "POST" action = "/cgi-bin/results.cgi">
+				<div class = "form-element">
+					<label for = "url-text">URL:</label>
+					<input id = "url-text" type = "text" name = "url">
+				</div>
+				<div class = "form-element">
+					<label for = "search-text">Search Text:</label>
+					<input id = "search-text" type = "text" name = "search_text">
+				</div>
+				<div class = "form-submit">
+					<input type = "submit" id = "form-submit" value = "Submit">
+				</div>
+			</form>
 		</div>
 	</body>
 </html>
