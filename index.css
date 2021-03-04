@@ -1,7 +1,7 @@
 .top-bg {
 	background: url("COMP 363 BG.png");
 	position: absolute;
-	width: 100%;
+	width: 99.6%;
 	height: 13%;
 	border: 3px solid #000000;
 }
@@ -20,7 +20,7 @@
 
 .square1 {
 	position: absolute;
-	right: 70%;
+	right: 61.4%;
 	top: 33%;
 	width: 21px;
 	height: 21px;
@@ -29,7 +29,7 @@
 
 .square2{
 	position: absolute;
-	right: 73%;
+	right: 60%;
 	top: 33%;
 	width: 21px;
 	height: 21px;
@@ -38,7 +38,7 @@
 
 .square3{
 	position: absolute;
-	right: 70%;
+	right: 60%;
 	top: 53%;
 	width: 21px;
 	height: 21px;
@@ -47,7 +47,7 @@
 
 .square4{
 	position: absolute;
-	right: 73%;
+	right: 61.4%;
 	top: 53%;
 	width: 21px;
 	height: 21px;
@@ -56,7 +56,7 @@
 
 .square5 {
 	position: absolute;
-	left: 70%;
+	left: 61.4%;
 	top: 53%;
 	width: 21px;
 	height: 21px;
@@ -65,7 +65,7 @@
 
 .square6{
 	position: absolute;
-	left: 70%;
+	left: 61.4%;
 	top: 33%;
 	width: 21px;
 	height: 21px;
@@ -74,7 +74,7 @@
 
 .square7{
 	position: absolute;
-	left: 73%;
+	left: 60%;
 	top: 53%;
 	width: 21px;
 	height: 21px;
@@ -83,48 +83,48 @@
 
 .square8{
 	position: absolute;
-	left: 73%;
+	left: 60%;
 	top: 33%;
 	width: 21px;
 	height: 21px;
 	background: #000000;
 }
 
-
-.top-controlf{
-	/*CONTROLF*/
+.about-section {
 	position: absolute;
-	width: 630px;
-	height: 126px;
-	font-family: Sarala;
+	width: 25%;	
+	height: 100%;
+	margin-top: 6.95%;
+	background: #9291D2;
+	border: 3px solid #000000;
+}
+
+.about-section h2 {
+	font-family: 'Sarala'; font-size: 30px;
 	font-style: normal;
-	font-weight: normal;
-	font-size: 70px;
-	line-height: 140px;
-	display: flex;
+	font-weight: bold;
 	align-items: center;
 	text-align: center;
-	color: #000000;
-
+	text-decoration: underline;
+	text-decoration: bold;
+	line-height: .1;
 }
 
-
-.form-title {
-	margin: auto;
-	width: 50%;
-	text-align: center;
+.about-section p {
+	font-family: 'Sarala'; font-size: 25px;
+	font-style:normal;
+	font-weight: normal;
+	text-align: left;
+	line-height: 1.5;
 }
 
-.form-container {
-	border: 1px solid black;
-	margin: auto;
-	width: 50%;
+.search-section {
+	position: absolute;
+	width: 75%;
+	left: 25%;	
+	height: 100%;
+	margin-top: 6.95%;
+	background: #7674C5;
+	border: 3px solid #000000;
 }
 
-.form-element {
-	margin: 20px 20px 10px 10px;
-}
-
-.form-submit {
-	margin: 10px 20px 20px 10px;
-}
