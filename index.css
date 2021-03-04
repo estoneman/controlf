@@ -1,3 +1,113 @@
+.top-bg {
+	background: url("COMP 363 BG.png");
+	position: absolute;
+	width: 100%;
+	height: 13%;
+	border: 3px solid #000000;
+}
+
+.top-bg h1{
+	position: absolute;
+	font-family: 'Sarala'; font-size: 70px;
+	font-style: normal;
+	font-weight: normal;
+	align-items: center;
+	text-align: center;
+	line-height: .5;
+	color: #000000;
+	width: 100%;
+}
+
+.square1 {
+	position: absolute;
+	right: 70%;
+	top: 33%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square2{
+	position: absolute;
+	right: 73%;
+	top: 33%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square3{
+	position: absolute;
+	right: 70%;
+	top: 53%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square4{
+	position: absolute;
+	right: 73%;
+	top: 53%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square5 {
+	position: absolute;
+	left: 70%;
+	top: 53%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square6{
+	position: absolute;
+	left: 70%;
+	top: 33%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square7{
+	position: absolute;
+	left: 73%;
+	top: 53%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+.square8{
+	position: absolute;
+	left: 73%;
+	top: 33%;
+	width: 21px;
+	height: 21px;
+	background: #000000;
+}
+
+
+.top-controlf{
+	/*CONTROLF*/
+	position: absolute;
+	width: 630px;
+	height: 126px;
+	font-family: Sarala;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 70px;
+	line-height: 140px;
+	display: flex;
+	align-items: center;
+	text-align: center;
+	color: #000000;
+
+}
+
 
 .form-title {
 	margin: auto;
