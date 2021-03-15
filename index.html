@@ -2,6 +2,7 @@
 	<head>
 		<title>CONTROLf</title>
 		<link rel = "stylesheet" href = "index.css">
+		<meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
 	</head>
 	<body>
 		<div class = "top-bg">
@@ -19,32 +20,11 @@
 			<h2>About</h2>
 			<p>&emsp;&emsp;Controlf is a searching website that tells users which search algorithm is the most efficient in finding certain phrases, words, or characters on websites. By importing a URL and a phrase, word, or character, Controlf works its magic by calculating how many times it occurs in the website using search algorithms [(INSERT THE ALGORITHMS HERE)]. To educate the users on these algorithms, this page will redirect you to a page that gives you a visualization of how long each algorithm took and the frequency of your input! This will show you which one was the fastest in finding your phrase, word, or character!</p>
 		</div>
-		<div class = "search-section">
-			<h3>Enter your URL:</h3>
-			<form>
-				<div class = "rec1"><input type = "text" placeholder = "Insert a URL here..."></div>
-			</form>
-			<h4>What do you want to find?</h4>
-			<form>
-				<div class = "rec2"><input type = "text" placeholder = "Enter a phrase, word, or character..."></div>
-			</form>
-			<input type = "button" class = "button" value = "Submit">
-		</div>
+		
+		<form method = "POST" action = "/cgi-bin/results.cgi">
+			<input type = "text" name = "url">
+			<input type = "submit" value = "Submit">
+		</form>
 
-		<!--<div class = "form-container">
-			<form method = "POST" action = "/cgi-bin/results.cgi">
-				<div class = "form-element">
-					<label for = "url-text">URL:</label>
-					<input id = "url-text" type = "text" name = "url">
-				</div>
-				<div class = "form-element">
-					<label for = "search-text">Search Text:</label>
-					<input id = "search-text" type = "text" name = "search_text">
-				</div>
-				<div class = "form-submit">
-					<input type = "submit" id = "form-submit" value = "Submit">
-				</div>
-			</form>
-		</div>-->
 	</body>
 </html>

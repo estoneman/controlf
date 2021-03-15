@@ -6,7 +6,6 @@
 #include <cgicc/Cgicc.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <bits/stdc++.h>
 #include <string>
 
 using namespace std;
@@ -24,6 +23,8 @@ int main() {
 
 	cout << url << "<br>" << endl;
 	cout << search_text << "<br>" << endl;
+
+	cout << "hello world" << endl;
 
 	cout << body() << html() << endl;
 
