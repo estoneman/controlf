@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <string.h>
 
+void urldecode2(char *dst, const char *src);
+
 void urldecode2(char *dst, const char *src)
 {
         char a, b;

@@ -5,6 +5,10 @@
 #define BODY "<body>"
 #define END_BODY "</body>"
 
+static size_t write_data(void *data, size_t size, size_t nmemb, void *stream);
+void parseForm(char *query_string, size_t query_string_len, char *url, char *search_string);
+void body(char *raw_html);
+
 struct memory {
     char* response;
     size_t size;
@@ -27,36 +31,45 @@ static size_t write_data(void *data, size_t size, size_t nmemb, void *stream) {
 	return realsize;
 }
 
-// convert ASCII to UTF-8
-void parseForm(char* str) {
+// write each form value into their own separate variables
+void parseForm(char *query_string, size_t query_string_len, char *url, char *search_string) {
 
-    int i = 0, j, n = strlen(str);
+    int eq_i1 = 0, eq_i2 = 0, amp_i = 0;
 
-    // find index at which the first equals sign is
-    while (str[i++] != '=');
+    while (query_string[eq_i1++] != '=');
+    amp_i = eq_i1;
+    while (query_string[++amp_i] != '&');
+    eq_i2 = amp_i;
+    while (query_string[eq_i2++] != '=');
 
-    // starting at index (index of '='), reassign the rest of the characters
-    for (j = 0; i < n; i++)
-        str[j++] = str[i];
-
-    str[j] = '\0';
+    for (; eq_i1 < amp_i; eq_i1++) strncat(url, &query_string[eq_i1], 1);
+    for (; eq_i2 < query_string_len; eq_i2++) strncat(search_string, &query_string[eq_i2], 1);
 
 }
 
-char* body(char *html) {
-    char *begin = strstr(html, BODY) + 6;
-    char *end = strstr(html, END_BODY);
-    size_t len = end - begin;
-    char *result = (char*)malloc(sizeof(char)*(len + 1));
-    strncpy(result, begin, len);
-    result[len] = '\0';
-    return result;
+// char* body(char *html) {
+//     char *begin = strstr(html, BODY) + 6;
+//     char *end = strstr(html, END_BODY);
+//     size_t len = end - begin;
+//     char *result = (char*)malloc(sizeof(char)*(len + 1));
+//     strncpy(result, begin, len);
+//     result[len] = '\0';
+//     return result;
+// }
+
+void body(char *raw_html) {
+    char *plain_text = raw_html;
+    while(*raw_html) {
+        if(*plain_text == '<')
+            while(*plain_text && *plain_text++ != '>');
+        *raw_html++ = *plain_text++; 
+    }
 }
 
 int main()
 {
 
-    char   *stdInData;                   /* Input buffer.               */
+    char   *query_string;                /* Input buffer.               */
     char   *contentLenString;            /* Character content length.   */
     int    contentLength;                /* int content length          */
     int    bytesRead;                    /* number of bytes read.       */
@@ -65,8 +78,7 @@ int main()
     printf("Content-type: text/html\r\n\r\n");
     printf("<html>\n");
     printf("<head>\n");
-    printf("<title>Results\n");
-    printf("</title>\n");
+    printf("<title>Results</title>\n");
     printf("</head>\n");
     printf("<body>\n");
 
@@ -77,30 +89,30 @@ int main()
     if ( contentLength ) {
 
         // Allocate and set memory to read stdin data into (cgi form input)
-        stdInData = malloc(contentLength);
-        if ( stdInData )
-            memset(stdInData, 0x00, contentLength);
+        query_string = malloc(contentLength);
+        if ( query_string )
+            memset(query_string, 0x00, contentLength);
         else
             printf("ERROR: Unable to allocate memory\n");
 
-        // this calculates the amount of bytes that was successfully read into memory
-        bytesRead = fread((char*)stdInData, 1, contentLength, stdin);
+        // this calculates the amount of bytes that was successfully read into memory from the query string
+        bytesRead = fread((char*)query_string, 1, contentLength, stdin);
 
         // If we successfully read all bytes from stdin, format and
         // write the data to stdout using the writeData function.
+        char *ascii_url = malloc(contentLength);
+        char *search_string = malloc(contentLength);
 
-        parseForm(stdInData);
+        // put url and search string into their own places in memory
+        parseForm(query_string, contentLength, ascii_url, search_string);
 
         // if these do not match then there was an error reading the data
         if ( bytesRead != contentLength )
             printf("<br>Error reading standard input\n");
 
         // decode ASCII url to UTF-8 to be able to search a url e.g. https%3A%2F%2Fgoogle.com --> https://google.com
-        char* url = malloc(strlen(stdInData) + 1);
-        urldecode2(url, stdInData);
-
-        // Free the storage allocated to hold the stdin data
-        free(stdInData);
+        char *utf_url = malloc(contentLength + 1);
+        urldecode2(utf_url, ascii_url);
 
         CURL *curl_handle;
 
@@ -115,7 +127,7 @@ int main()
         curl_handle = curl_easy_init();
 
         // set the URL to retrieve here
-        curl_easy_setopt(curl_handle, CURLOPT_URL, url);
+        curl_easy_setopt(curl_handle, CURLOPT_URL, utf_url);
 
         // switch on full protocol/debug output while testing
         curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L);
@@ -133,14 +145,16 @@ int main()
         if ( !(res = curl_easy_perform(curl_handle)) )
             fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 
-        // printf("<br>%lu bytes retrieved<br>\n", (unsigned long)chunk.size);
+        printf("%zu bytes fetched from %s<br>\n", chunk.size, utf_url);
 
-        chunk.response = body(chunk.response);
-        while (*chunk.response) printf("%c\n", *chunk.response++);
+        body(chunk.response);
+        printf("%s", chunk.response);
 
         // free any memory used to store input data
         free(chunk.response);
-	    free(url);
+        free(ascii_url);
+	    free(utf_url);
+        free(query_string);
 
         // cleanup any memory leaks
         curl_easy_cleanup(curl_handle);
