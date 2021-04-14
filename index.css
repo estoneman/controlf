@@ -1,54 +1,89 @@
-html, body {
+body {
+    margin: 0;
+    padding: 0;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background: #1d4063;
 }
 
-#title-container {
+#form-box {
+    width: 30%;
+    padding: 1%;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #191919;
     text-align: center;
-    height: 10%;
-}
-#title-text {
-    font-size: 42px;
 }
 
-#body {
-    margin: auto;
-    width: 25%;
-    border: 1px solid black;
-    border-radius: 4px;
+#form-box h1 {
+    color: white;
+    text-transform: uppercase;
+    font-weight: 500;
 }
 
-#form-container {
-    margin: 48px;
+#form-box input[type="text"] {
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    border: 3px solid #1d4063;
+    padding: 2% 2.4%;
+    width: 75%;
+    height: 50px;
+    color: white;
+    outline: none;
+    font-size: medium;
 }
 
-#form-title-text {
-    font-size: 26px;
+#form-box input[type="text"]:focus::placeholder {
+    color: transparent;
 }
 
-.form-entry {
-    margin-bottom: 16px;
-}
-
-.form-entry:focus {
-    border: 1px solid red;
-}
-
-#submit-btn {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    margin: 10px 0px 0px 0px;
-    width: 100%;
-    height: 3%;
-    font-size: 20px;
-}
-
-#submit-btn:hover {
+#form-box input[type="submit"] {
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    display: block;
+    margin: 20px auto;
+    text-align: center;
+    border: 2px solid #00cc66;
+    padding: 14px 40px;
+    color: white;
+    outline: none;
     cursor: pointer;
 }
 
-input[type=text] {
+#form-box input[type="submit"]:hover {
+    background: #00cc66;
+}
+
+/* about section */
+#about-title {
     display: block;
-    height: 3%;
-    width: 100%;
-    text-indent: 16px;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.line {
+    border-bottom: 1px solid white;
+    width: 32%;
+    display: inline-block;
+}
+
+#about-title p {
+    display: inline-block;
+    text-transform: uppercase;
+    color: white;
+}
+
+#about-section {
+    width: 75%;
+    margin: auto;
+    text-align: center;
+}
+
+#about-text {
+    color: white;
+    font-weight: lighter;
 }

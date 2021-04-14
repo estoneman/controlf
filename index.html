@@ -2,34 +2,17 @@
 	<head>
 		<title>CONTROLf Search</title>
 		<link rel = "stylesheet" href = "index.css">
+		<link rel = "shortcut icon" type = "image/png" href="img/faze.png">
 		<meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
 	</head>
 	<body>
 
-		<div id = "title-container">
-			<p id = "title-text">CONTROLf</p>
-		</div>
-
-		<div id = "body">
-			<div id = "form-container">
-				<div id = "form-title">
-					<p id = "form-title-text">Search</p>
-				</div>
-				<form method = "POST" action = "/cgi-bin/results.cgi">
-					<div class = "form-entry">
-						<label for = "url-text">URL</label>
-						<input id = "url-text" class = "text-area" name = "url" type = "text" placeholder = "e.g. https://google.com">
-					</div>
-					<div class = "form-entry">
-						<label for = "search-text">Search String</label>
-						<input id = "search-text" class = "text-area" name = "search-string" type = "text">
-					</div>
-					<div class = "submit-element">
-						<input type = "submit" value = "Go" id = "submit-btn">
-					</div>
-				</form>
-			</div>
-		</div>
+		<form id = "form-box" action = "/cgi-bin/results.cgi" method = "post">
+			<h1>Search</h1>
+			<input type = "text" name = "url" placeholder = "e.g. https://google.com" 	required>
+			<input type = "text" name = "search-string" placeholder = "Word to search for" required>
+			<input type = "submit" value = "Go">
+		</form>
 
 	</body>
 </html>

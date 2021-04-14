@@ -1,21 +1,29 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
 
-void remove_html(char* str) {
-    char* html_str = str;
-    while(*str) {
-        if(*html_str == '<')
-            while(*html_str && *html_str++ != '>');
-        *str++ = *html_str++; 
-    }
+void removeSpaces(char *str)
+{
+    // To keep track of non-space character count
+    int count = 0;
+
+    // Traverse the given string. If current character
+    // is not space, then place it at index 'count++'
+    for (int i = 0; *(str + i); i++)
+        if (!isspace(*(str + i)))
+            // printf("%c: %c\n", *(str + i), *(str + (count++)));
+            *(str + (count++)) = *(str + i); // here count is
+                                   // incremented
+    *(str + count) = '\0';
 }
 
 int main() {
-    char *s = "<html><head><title>Hello world</title></head><body>this is the body tag of the raw html string</body></html>";
-    remove_html(s);
 
-    printf("%s\n", s);
+    char *str = "           \t\t\n        \v Search     Hello World";
+
+    removeSpaces(str);
+
+    // printf("%s\n", str);
 
     return 0;
 }
