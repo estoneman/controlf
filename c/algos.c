@@ -1,22 +1,24 @@
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../include/algos.h"
 
+static const char _OPENED = '<', _CLOSED = '>';
+
 // returns the number of occurences of a string within another string, if Aminussymbol
+// TODO: fix recognition of all special characters besides '.'
 size_t s_iter_search(char *haystack, char *needle) {
     size_t haysize = strlen(haystack), needlesize = strlen(needle), i, j, numfound = 0;
     // entire needle cannot possbily be in the haystack if it is larger than what is being searched
-    if (needlesize > haysize) return 0;
     // if the needle is empty or haystack is empty
-    if (needlesize <= 0 || haysize <= 0) return 0;
+    if (needlesize <= 0 || haysize <= 0 || needlesize > haysize) return 0;
+
     for (i = 0; i < haysize; i++) {
-        if ((*(haystack + i)) == (*needle)) {
+        if (tolower((*(haystack + i))) == tolower((*needle))) {
             j = 0;
             // while the current character exists in the string AND the current character (either upper or lowercase) of the needle equals the current character of the haystack
-            while (*(needle + j) && (*(needle + j)) == (*(haystack + i + j))) j++;
+            while (*(needle + j) && tolower((*(needle + j))) == tolower((*(haystack + i + j)))) j++;
             if (j == needlesize) numfound++;
             // start next iteration of for loop at the position where the while loop iteration left off so there is no repeated statements
             i = i + j - 1;
@@ -25,7 +27,7 @@ size_t s_iter_search(char *haystack, char *needle) {
     return numfound;
 }
 
-void ascii_to_utf8(char *dst, const char *src)
+void utf8_decode(char *dst, const char *src)
 {
         char a, b;
         while (*src) {
@@ -58,7 +60,7 @@ void ascii_to_utf8(char *dst, const char *src)
 
 void parseForm(char *query_string, size_t query_string_len, char *url, char *search_string) {
 
-    int eq_i1 = 0, eq_i2 = 0, amp_i = 0;
+    size_t eq_i1 = 0, eq_i2 = 0, amp_i = 0;
 
     // find the indexes of each character '=' and '&' respectively
     while (query_string[eq_i1++] != '=');
@@ -71,4 +73,24 @@ void parseForm(char *query_string, size_t query_string_len, char *url, char *sea
     for (; eq_i1 < amp_i; eq_i1++) strncat(url, &query_string[eq_i1], 1);
     for (; eq_i2 < query_string_len; eq_i2++) strncat(search_string, &query_string[eq_i2], 1);
 
+}
+
+void plain_text(char *html) {
+    char* result = html;
+
+    size_t idx = 0, nRead = strlen(html), opened = 0, i;
+    for(i = 0; i < nRead; i++) {
+        // _isspace = (isspace(*(result + i))) ? 1 : 0;
+        if (*(result + i) == _OPENED) {
+            opened = 1; // true
+        }
+        else if (*(result + i) == _CLOSED) {
+            opened = 0; // false
+        }
+        // else if (!opened && !_isspace) {
+        else if (!opened) {
+            *(html + (idx++)) = *(result + i);
+        }
+    }
+    *(html + idx) = '\0';
 }

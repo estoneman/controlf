@@ -1,14 +1,10 @@
-#include <curl/curl.h>
-#include <errno.h>                    // error checking for libcurl
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
+#include <curl/curl.h>
+#include <errno.h>                    // error checking header
+#include <stdlib.h>
+#include <string.h>
 
 #include "../include/algos.h"
-
-#define _OPENED '<'
-#define _CLOSED '>'
 
 typedef struct request {
     char* response;
@@ -35,35 +31,15 @@ static size_t write_data(void *data, size_t size, size_t nmemb, void *stream) {
 	return realsize;
 }
 
-void plain_text(char *html) {
-    char* result = html;
-
-    size_t idx = 0, nRead = strlen(html), opened = 0, i;
-    for(i = 0; i < nRead; i++) {
-        // _isspace = (isspace(*(result + i))) ? 1 : 0;
-        if (*(result + i) == _OPENED) {
-            opened = 1; // true
-        }
-        else if (*(result + i) == _CLOSED) {
-            opened = 0; // false
-        }
-        // else if (!opened && !_isspace) {
-        else if (!opened) {
-            *(html + (idx++)) = *(result + i);
-        }
-    }
-    *(html + idx) = '\0';
-}
-
 int main()
 {
 
-    char   *contentLenString;            /* content length as a string which is implicitly typed from getenv()  */
-    char   *decoded_search_string;       /* decoded search string (ascii to utf8)                               */
-    char   *query_string;                /* memory location for the entire query string using POST              */
+    char    *contentLenString;            /* content length as a string which is implicitly typed from getenv()  */
+    char    *decoded_search_string;       /* decoded search string (ascii to utf8)                               */
+    char    *query_string;                /* memory location for the entire query string using POST              */
 
-    size_t   bytesRead;                    /* number of bytes read into memory                                    */
-    size_t    contentLength;                /* number of characters that was passed from the form                  */
+    size_t  bytesRead;                    /* number of bytes read into memory                                    */
+    size_t  contentLength;                /* number of characters that was passed from the form                  */
 
     // The "Content-type" is the minimum request header that must be written to standard output.  It describes the type of data that follows.                                                         */
     printf("Content-type: text/html\r\n\r\n");
@@ -71,12 +47,13 @@ int main()
     printf("<head>\n");
     printf("<title>Results</title>\n");
     printf("<link rel = 'shortcut icon' type = 'image/jpg' href = '../img/conky.jpeg'>");
+    // printf("<link rel = 'stylesheet' href = 'http://controlf.com/index.css'>");
     printf("</head>\n");
     printf("<body>\n");
 
     // content length is the amount of bytes that are being read
     contentLenString = getenv("CONTENT_LENGTH");
-    contentLength = atoi(contentLenString);
+    contentLength = (size_t) atoi(contentLenString);
 
     if ( contentLength ) {
 
@@ -135,7 +112,7 @@ int main()
         // check if operation was successful
         if ( (res = curl_easy_perform(curl_handle) ) != CURLE_OK)
             // fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            printf("%s\n", curl_easy_strerror(res));
 
         curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &info);
 
@@ -145,22 +122,23 @@ int main()
 
         plain_text(request.response);
 
+        // convert ascii search string to utf-8 search string
+        decoded_search_string = calloc(1, strlen(search_string) + 1);
+        utf8_decode(decoded_search_string, search_string);
+
         // single iterative find algorithm
         size_t numfound = s_iter_search(request.response, search_string);
 
-        // convert ascii search string to utf-8 search string
-        decoded_search_string = calloc(1, strlen(search_string) + 1);
-        ascii_to_utf8(decoded_search_string, search_string);
-
         printf("<h3>%zu Occurence(s) of %s\n</h3><br>", numfound, decoded_search_string);
 
-        // finally write contents of request.response for debug purposes
-        FILE *fp;
-        fp = fopen("../scrapedhtml/scraped.txt", "w");
-        fprintf(fp, "%s\n", request.response);
-        fclose(fp);
+        // // finally write contents of request.response for debug purposes
+        // FILE *fp;
+        // fp = fopen("../scrapedhtml/scraped.txt", "w");
+        // while (!isspace(*request.response++)) fprintf(fp, "%c", *request.response);
+        // // fprintf(fp, "%s\n", request.response);
+        // fclose(fp);
 
-        // free any memory used to store input data
+        // free any memory
         free(decoded_search_string);
         free(request.response);
         free(ascii_url);
