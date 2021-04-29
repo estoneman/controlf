@@ -1,10 +1,13 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "../include/algos.h"
 
 static const char _OPENED = '<', _CLOSED = '>';
+int count = 0;
+int* t;
 
 // returns the number of occurences of a string within another string, if Aminussymbol
 // TODO: fix recognition of all special characters besides '.'
@@ -93,4 +96,35 @@ void plain_text(char *html) {
         }
     }
     *(html + idx) = '\0';
+}
+
+void shifttable(char p[], int t[], int asciiSize) {
+    int i, j, m;
+    m = strlen(p);
+
+    for(i = 0; i < asciiSize; i++) {
+        t[i] = m;
+    }
+    for(j = 0;j < m - 1; j++) {
+        t[p[j]] = m - 1 - j;
+    }
+}
+
+int horspool(char src[], char p[], int table[]) {
+    int i, j, k, m, n;
+    n = strlen(src);
+    m = strlen(p);
+    i = m - 1;
+    while(i < n) {
+        k = 0;
+        while((k < m) && (p[m - 1 - k]==src[i - k])) {
+            k++;
+        }
+        if(k == m) {
+            return(i - m + 1);
+        }else {
+            i += table[src[i]];
+        }
+    }
+    return -1;
 }
