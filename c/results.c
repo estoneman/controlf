@@ -4,8 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "../include/algos.h"
+#include "../include/util.h"
+
+#define ASCII_TABLE_SIZE 128
 
 typedef struct request {
     char* response;
@@ -121,24 +125,49 @@ int main()
 
         printf("<br>%zu bytes fetched from %s<br><br>\n", request.size, escaped_url);
 
-        plain_text(request.response);
+        rm_html_tags(request.response);
 
         // Convert ascii search string to utf-8 search string
         decoded_search_string = calloc(1, strlen(search_string) + 1);
         utf8_decode(decoded_search_string, search_string);
 
-        // Write contents of request.response for debug purposes
-        FILE *fp = fopen("../scrapedhtml/scraped.txt", "w");
-        while (!isspace(*request.response++)) fprintf(fp, "%c", *request.response);
-          fprintf(fp, "%s\n", request.response);
-        fclose(fp);
+        // Write contents of request.response
+        FILE *outfile = fopen("../scrapedhtml/scraped.txt", "w");
+        if (outfile) {
+            while (*request.response++) {
+                fprintf(outfile, "%c", tolower(*request.response));
+            }
+            fclose(outfile);
+        }
 
+        // get input string for use in following algorithms
+        char *src = 0;
+        long infilesize = 0;
+        FILE *infile = fopen("../scrapedhtml/scraped.txt", "r");
+        if (infile) {
+            fseek(infile, 0, SEEK_END);
+            infilesize = ftell(infile);
+            fseek(infile, 0, SEEK_SET);
+            src = malloc(infilesize);
+            if(src)
+                fread(src, 1, infilesize, infile);
+            fclose(infile);
+        }
 
         /*////////////////////////////////////////////////////////////
                       SINGLE ITERATIVE FIND ALGORITHM
         ////////////////////////////////////////////////////////////*/
-        size_t numfound = s_iter_search(request.response, decoded_search_string);
-        printf("<h3>%zu Occurence(s) of %s\n</h3><br>", numfound, decoded_search_string);
+        /*
+        clock_t begin = clock();
+
+
+        clock_t end = clock();
+        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        */
+        // clock_t begin, end;
+
+        int numfound = s_iter_search(src, decoded_search_string);
+        printf("<h3>SINGLE ITERATIVE SEARCH: %i</h3><br>\n", numfound);
         // END SINGLE ITERATIVE FIND ALGORITHM
 
 
@@ -146,43 +175,34 @@ int main()
                       HORSPOOL ALGORITHM
         ////////////////////////////////////////////////////////////*/
         int patternLength = strlen(decoded_search_string);
-        //Get fileData
-        char* src = 0;
-        long length;
-        FILE* fp_horspool = fopen("../scrapedhtml/scraped.txt", "r");
-        if(fp_horspool) {
-            fseek(fp_horspool, 0, SEEK_END);
-            length = ftell(fp_horspool);
-            fseek(fp_horspool, 0, SEEK_SET);
-            src = malloc(length);
-            if(src) {
-                fread(src, 1, length, fp_horspool);
-            }
-            fclose(fp_horspool);
-        }
-        //Shift table and call the horspool function
-        int asciiSize = 128;
-        int* table = malloc(sizeof(int) * asciiSize);
-        shifttable(decoded_search_string, table, asciiSize);
-        int pos = 0;
-        int count = 0;
-        int numFound = 0;
-        while(count < length) {
-            pos = horspool(src + count, decoded_search_string, table);
-            if(pos >= 0) {
-                count = count + pos + patternLength;
-                numFound++;
-            }else {
-                break;
-            }
-        }
-        printf("Found %d time(s) \n", numFound);
-        //END HORSPOOL ALGORITHM
+        // Shift table and call the horspool function
+        int* bm_table = malloc(sizeof(int) * ASCII_TABLE_SIZE);
 
+        int pos = 0, count = 0;
+        numfound = 0;
+        shifttable(decoded_search_string, bm_table, ASCII_TABLE_SIZE);
+
+        while (count < infilesize) {
+            pos = horspool(src + count, decoded_search_string, bm_table);
+            if (pos >= 0) {
+                count = count + pos + patternLength;
+                numfound++;
+            }
+            else
+                break;
+        }
+        printf("<h3>HORSPOOL: %i</h3><br>\n", numfound);
+        free(bm_table);
+        // END HORSPOOL ALGORITHM
+
+        // START KNUTH MORRIS PRATT
+        numfound = kmp(src, decoded_search_string);
+        printf("<h3>KMP: %i</h3><br>\n", numfound);
 
         // free any memory
         free(decoded_search_string);
         free(request.response);
+        free(src);
         free(ascii_url);
         free(query_string);
 

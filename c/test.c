@@ -1,28 +1,45 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "../include/algos.h"
 
-int main() {
+int main()
+{
 
-    FILE *f = fopen("a.out", "rb");
-    fseek(f, 0, SEEK_END);
-    long fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);  /* same as rewind(f); */
-
-    char *string = malloc(fsize + 1);
-    fread(string, 1, fsize, f);
-    fclose(f);
-
-    // string[fsize] = 0;
-    *(string + fsize) = 0;
-
-    while (*string) {
-        printf("%x\n", *string++);
+    char *src = 0;
+    long infilesize = 0;
+    FILE *infile = fopen("../scrapedhtml/scraped.txt", "r");
+    if (infile) {
+        fseek(infile, 0, SEEK_END);
+        infilesize = ftell(infile);
+        fseek(infile, 0, SEEK_SET);
+        src = malloc(infilesize);
+        if(src)
+            fread(src, 1, infilesize, infile);
+        fclose(infile);
     }
+    char *pat = "as";
+    int patternLength = strlen(pat);
+    // Shift table and call the horspool function
+    int* table = malloc(sizeof(int) * 128);
 
-    printf("%x\n", string);
+    int pos = 0, count = 0, numfound = 0;
+    shifttable(pat, table, 128);
+    while (count < infilesize) {
+        pos = horspool(src + count, pat, table);
+        printf("%i\n", pos);
+        if (pos >= 0) {
+            count = count + pos + patternLength;
+            numfound++;
+        }
+        else
+            break;
+    }
+    printf("%i\n", numfound);
+    printf("%i\n", s_iter_search(src, pat));
+    printf("%i\n", kmp(src, pat));
 
-    printf("%ld\n", fsize);
-
-    return 0;
+    free(table);
+	return 0;
 }

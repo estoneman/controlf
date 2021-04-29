@@ -5,23 +5,18 @@
 
 #include "../include/algos.h"
 
-static const char _OPENED = '<', _CLOSED = '>';
-int count = 0;
-int* t;
-
-// returns the number of occurences of a string within another string, if Aminussymbol
-// TODO: fix recognition of all special characters besides '.'
-size_t s_iter_search(char *haystack, char *needle) {
+// SINGLE ITERATIVE SEARCH
+int s_iter_search(char *haystack, char *needle) {
     size_t haysize = strlen(haystack), needlesize = strlen(needle), i, j, numfound = 0;
     // entire needle cannot possbily be in the haystack if it is larger than what is being searched
     // if the needle is empty or haystack is empty
     if (needlesize <= 0 || haysize <= 0 || needlesize > haysize) return 0;
 
     for (i = 0; i < haysize; i++) {
-        if (tolower((*(haystack + i))) == tolower((*needle))) {
+        if ((*(haystack + i)) == (*needle)) {
             j = 0;
             // while the current character exists in the string AND the current character (either upper or lowercase) of the needle equals the current character of the haystack
-            while (*(needle + j) && tolower((*(needle + j))) == tolower((*(haystack + i + j)))) j++;
+            while (*(needle + j) && (*(needle + j)) == (*(haystack + i + j))) j++;
             if (j == needlesize) numfound++;
             // start next iteration of for loop at the position where the while loop iteration left off so there is no repeated statements
             i = i + j - 1;
@@ -29,102 +24,93 @@ size_t s_iter_search(char *haystack, char *needle) {
     }
     return numfound;
 }
+// END SINGLE ITERATIVE SEARCH
 
-void utf8_decode(char *dst, const char *src)
-{
-        char a, b;
-        while (*src) {
-                if ((*src == '%') &&
-                    ((a = src[1]) && (b = src[2])) &&
-                    (isxdigit(a) && isxdigit(b))) {
-                        if (a >= 'a')
-                                a -= 'a'-'A';
-                        if (a >= 'A')
-                                a -= ('A' - 10);
-                        else
-                                a -= '0';
-                        if (b >= 'a')
-                                b -= 'a'-'A';
-                        if (b >= 'A')
-                                b -= ('A' - 10);
-                        else
-                                b -= '0';
-                        *dst++ = 16*a+b;
-                        src+=3;
-                } else if (*src == '+') {
-                        *dst++ = ' ';
-                        src++;
-                } else {
-                        *dst++ = *src++;
-                }
-        }
-        *dst++ = '\0';
-}
-
-void parseForm(char *query_string, size_t query_string_len, char *url, char *search_string) {
-
-    size_t eq_i1 = 0, eq_i2 = 0, amp_i = 0;
-
-    // find the indexes of each character '=' and '&' respectively
-    while (query_string[eq_i1++] != '=');
-    amp_i = eq_i1;
-    while (query_string[++amp_i] != '&');
-    eq_i2 = amp_i;
-    while (query_string[eq_i2++] != '=');
-
-    // only start adding the characters between the correct delimiters ('=' and '&')
-    for (; eq_i1 < amp_i; eq_i1++) strncat(url, &query_string[eq_i1], 1);
-    for (; eq_i2 < query_string_len; eq_i2++) strncat(search_string, &query_string[eq_i2], 1);
-
-}
-
-void plain_text(char *html) {
-    char* result = html;
-
-    size_t idx = 0, nRead = strlen(html), opened = 0, i;
-    for(i = 0; i < nRead; i++) {
-        // _isspace = (isspace(*(result + i))) ? 1 : 0;
-        if (*(result + i) == _OPENED) {
-            opened = 1; // true
-        }
-        else if (*(result + i) == _CLOSED) {
-            opened = 0; // false
-        }
-        // else if (!opened && !_isspace) {
-        else if (!opened) {
-            *(html + (idx++)) = *(result + i);
-        }
-    }
-    *(html + idx) = '\0';
-}
-
-void shifttable(char p[], int t[], int asciiSize) {
-    int i, j, m;
-    m = strlen(p);
+// START HORSPOOL
+void shifttable(char pattern[], int bm_table[], int asciiSize) {
+    int i, j, pattern_length;
+    pattern_length = strlen(pattern);
 
     for(i = 0; i < asciiSize; i++) {
-        t[i] = m;
+        bm_table[i] = pattern_length;
     }
-    for(j = 0;j < m - 1; j++) {
-        t[p[j]] = m - 1 - j;
+    for(j = 0;j < pattern_length - 1; j++) {
+        bm_table[(int) pattern[j]] = pattern_length - 1 - j;
     }
 }
 
-int horspool(char src[], char p[], int table[]) {
-    int i, j, k, m, n;
-    n = strlen(src);
-    m = strlen(p);
-    i = m - 1;
-    while(i < n) {
+int horspool (char haystack[], char needle[], int bm_table[]) {
+    int iter_pos, k, needlesize, haysize;
+    haysize = strlen(haystack);
+    needlesize = strlen(needle);
+    iter_pos = needlesize - 1;
+
+    while (iter_pos < haysize) {
         k = 0;
-        while((k < m) && (p[m - 1 - k]==src[i - k])) {
+        while((k < needlesize) && ( needle[needlesize - 1 - k]) == haystack[iter_pos - k])
             k++;
-        }
-        if(k == m) {
-            return(i - m + 1);
-        }else {
-            i += table[src[i]];
-        }
+        if (k == needlesize)
+            return (iter_pos - needlesize + 1);
+        else
+            iter_pos += bm_table[(int) haystack[iter_pos]];
     }
     return -1;
 }
+// END HORSPOOL
+
+// START KNUTH MORRIS PRATT
+void computeLPSarray(char *needle, int needlesize, int *lps) {
+	int size_ps = 0;	//length of previous longest prefix suffix
+	int i;
+
+	lps[0] = 0;	//lps[0] is always 0
+	i = 1;
+
+    //loop calculates lps[i] for i = 1 to M-1
+	while(i <  needlesize) {
+		if(needle[i] == needle[size_ps]) {
+			size_ps++;
+			lps[i] = size_ps;
+			i++;
+		}
+        // needle[i] != needle[len]
+		else {
+			if(size_ps != 0) {
+				size_ps = lps[size_ps - 1];
+			}
+            // if len == 0
+			else {
+				lps[i] = 0;
+				i++;
+			}
+		}
+	}
+}
+
+int kmp(char *haystack, char *needle)
+{
+	int needlesize = strlen(needle), haysize = strlen(haystack);
+
+	int *lps = (int*)malloc(needlesize * sizeof(int));
+	int j = 0, numfound = 0;
+
+	computeLPSarray(needle, needlesize, lps);
+
+	int i = 0;
+	while(i < haysize) {
+		if (needle[j] == haystack[i]) { j++; i++; }
+		if (j == needlesize) {
+            numfound++;
+			j = lps[j-1];
+		}
+		else if(needle[j] != haystack[i]) {
+			if(j != 0)
+				j = lps[j-1];
+			else
+				i++;
+		}
+	}
+    return numfound;
+	free(lps);
+}
+// END KNUTH MORRIS PRATT
