@@ -47,12 +47,12 @@ int horspool (char haystack[], char needle[], int bm_table[]) {
 
     while (iter_pos < haysize) {
         k = 0;
-        while((k < needlesize) && ( needle[needlesize - 1 - k]) == haystack[iter_pos - k])
+        while((k < needlesize) && (needle[needlesize - 1 - k] == haystack[iter_pos - k]))
             k++;
         if (k == needlesize)
             return (iter_pos - needlesize + 1);
         else
-            iter_pos += bm_table[(int) haystack[iter_pos]];
+            iter_pos += bm_table[haystack[iter_pos]];
     }
     return -1;
 }
