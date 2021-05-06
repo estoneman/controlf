@@ -74,7 +74,7 @@ int horspool (char haystack[], char needle[], int bm_table[]) {
             return (iter_pos - needlesize + 1);
         }
         else
-            iter_pos += bm_table[(int) haystack[iter_pos]];
+            iter_pos += bm_table[haystack[iter_pos]];
     }
     return -1;
 }
