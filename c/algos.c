@@ -5,6 +5,27 @@
 
 #include "../include/algos.h"
 
+// naive string search
+int search(char *haystack, char *needle) {
+    int needlesize = strlen(needle);
+    int haysize = strlen(haystack);
+    int numfound = 0;
+
+    /* A loop to slide pat[] one by one */
+    for (int i = 0; i <= haysize - needlesize; i++) {
+        int j;
+
+        /* For current index i, check for pattern match */
+        for (j = 0; j < needlesize; j++)
+            if (haystack[i + j] != needle[j])
+                break;
+
+        if (j == needlesize) // if pat[0...M-1] = txt[i, i+1, ...i+M-1]
+            numfound++;
+    }
+    return numfound;
+}
+
 // SINGLE ITERATIVE SEARCH
 int s_iter_search(char *haystack, char *needle) {
     size_t haysize = strlen(haystack), needlesize = strlen(needle), i, j, numfound = 0;
@@ -47,10 +68,11 @@ int horspool (char haystack[], char needle[], int bm_table[]) {
 
     while (iter_pos < haysize) {
         k = 0;
-        while((k < needlesize) && ( needle[needlesize - 1 - k]) == haystack[iter_pos - k])
+        while((k < needlesize) && (needle[needlesize - 1 - k] == haystack[iter_pos - k]))
             k++;
-        if (k == needlesize)
+        if (k == needlesize) {
             return (iter_pos - needlesize + 1);
+        }
         else
             iter_pos += bm_table[(int) haystack[iter_pos]];
     }

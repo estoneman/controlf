@@ -3,6 +3,8 @@
 
 // SUBSTRING SEARCHING
 
+// NAIVE SEARCH
+int search(char *haystack, char *needle);
 // SINGLE ITERATIVE SEARCH
 int s_iter_search(char *haystack, char *needle);
 // BOYER-MOORE HORSPOOL ALGORITHM

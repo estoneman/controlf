@@ -3,6 +3,7 @@ body {
     padding: 0;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     background: #1d4063;
+    background-image: linear-gradient(to bottom right, #1d4063, #061b30);
 }
 
 #form-box {

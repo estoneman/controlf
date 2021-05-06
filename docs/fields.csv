@@ -1,3 +1,0 @@
-Form Field,Required,Type,Size,Internal HTML
-URL,Yes,String,100-150 chars?,url
-Search Text,Yes,String,50 chars?,search_text

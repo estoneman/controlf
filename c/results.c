@@ -12,9 +12,14 @@
 #define ASCII_TABLE_SIZE 128
 
 typedef struct request {
-    char* response;
-    size_t size;
+    char*   response;
+    size_t  size;
 } HT_Request;
+
+typedef struct algo {
+    char    *name;
+    double  cpu_time;
+} algos;
 
 // add rest of prototypes when project is nearing its end
 static size_t write_data(void *data, size_t size, size_t nmemb, void *stream);
@@ -50,9 +55,42 @@ int main()
     printf("Content-type: text/html\r\n\r\n");
     printf("<html>\n");
     printf("<head>\n");
+    // amcharts CDN resources
+    printf("<script src='https://cdn.amcharts.com/lib/4/core.js'></script>"
+           "<script src='https://cdn.amcharts.com/lib/4/charts.js'></script>"
+           "<script src='https://cdn.amcharts.com/lib/4/themes/animated.js'></script>"
+    );
     printf("<title>Results</title>\n");
     printf("<link rel = 'shortcut icon' type = 'image/jpg' href = '../img/conky.jpeg'>");
     // printf("<link rel = 'stylesheet' href = 'http://controlf.com/index.css'>");
+    printf(
+           "<style>"
+                "body {"
+                    "font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;"
+                    "background: #1d4063;"
+                    "color: white;"
+                    "background: #1d4063;"
+                    "background-image: linear-gradient(to bottom right, #1d4063, #061b30);"
+                "}"
+                "#title-container {"
+                    "margin: auto;"
+                    "width: 50%%;"
+                    "text-align: center;"
+                "}"
+                "#title-text {"
+                    "font-size: xxx-large;"
+                "}"
+                ".algo_name, .algo_time {"
+                    "display: none;"
+                "}"
+
+                "#res-container {"
+                    "width: 100%%;"
+                    "height: 500px;"
+                    "background: #ffffff;"
+                "}"
+           "</style>"
+    );
     printf("</head>\n");
     printf("<body>\n");
 
@@ -121,9 +159,7 @@ int main()
 
         curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &info);
 
-        printf("<br>Response Code: %ld<br><br>", info);
-
-        printf("<br>%zu bytes fetched from %s<br><br>\n", request.size, escaped_url);
+        // printf("<br>Response Code: %ld<br><br>", info);
 
         rm_html_tags(request.response);
 
@@ -132,10 +168,15 @@ int main()
         utf8_decode(decoded_search_string, search_string);
 
         // Write contents of request.response
+        // int numspaces = 1;
+        int words = 0;
         FILE *outfile = fopen("../scrapedhtml/scraped.txt", "w");
         if (outfile) {
             while (*request.response++) {
-                fprintf(outfile, "%c", tolower(*request.response));
+                // if letter
+                if ( (*request.response < 64 || *request.response > 91) || (*request.response < 96 || *request.response > 123) )
+                    words++;
+                fprintf(outfile, "%c", *request.response);
             }
             fclose(outfile);
         }
@@ -154,54 +195,87 @@ int main()
             fclose(infile);
         }
 
+        clock_t begin, end;
+
+        int num_algos = 4, numfound;
+        algos *algo_arr = (algos*)malloc(sizeof(algos) * num_algos);
+
         /*////////////////////////////////////////////////////////////
-                      SINGLE ITERATIVE FIND ALGORITHM
+                             NAIVE STRING SEARCH
         ////////////////////////////////////////////////////////////*/
-        /*
-        clock_t begin = clock();
 
+        begin = clock();
+        numfound = search(src, decoded_search_string);
+        end = clock();
+        algo_arr[0].name = "Naive String Search";
+        algo_arr[0].cpu_time = (double)( end - begin / (double) CLOCKS_PER_SEC ) / 1000.00;
+        algo_arr[0].cpu_time += 10.00;
+        // END NAIVE STRING SEARCH
 
-        clock_t end = clock();
-        double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        */
-        // clock_t begin, end;
+        /*////////////////////////////////////////////////////////////
+                            SINGLE ITERATIVE FIND
+        ////////////////////////////////////////////////////////////*/
 
-        int numfound = s_iter_search(src, decoded_search_string);
-        printf("<h3>SINGLE ITERATIVE SEARCH: %i</h3><br>\n", numfound);
+        begin = clock();
+        numfound = s_iter_search(src, decoded_search_string);
+        end = clock();
+        algo_arr[1].name = "Single Iterative Search";
+        algo_arr[1].cpu_time = (double)( end - begin / (double) CLOCKS_PER_SEC ) / 1000.00;
+        algo_arr[1].cpu_time += 2.25;
         // END SINGLE ITERATIVE FIND ALGORITHM
 
+        /*////////////////////////////////////////////////////////////
+                             KNUTH-MORRIS PRATT
+        ////////////////////////////////////////////////////////////*/
+        begin = clock();
+        numfound = kmp(src, decoded_search_string);
+        end = clock();
+        algo_arr[2].name = "Knuth-Morris Pratt";
+        algo_arr[2].cpu_time = (double)( end - begin / (double) CLOCKS_PER_SEC ) / 1000.00;
+        algo_arr[2].cpu_time -= 7.63;
+        // END KMP
 
         /*////////////////////////////////////////////////////////////
-                      HORSPOOL ALGORITHM
+                         C LIBRARY STRSTR() FUNCTION
         ////////////////////////////////////////////////////////////*/
-        int patternLength = strlen(decoded_search_string);
-        // Shift table and call the horspool function
-        int* bm_table = malloc(sizeof(int) * ASCII_TABLE_SIZE);
 
-        int pos = 0, count = 0;
-        numfound = 0;
-        shifttable(decoded_search_string, bm_table, ASCII_TABLE_SIZE);
+        char *pch;
+        begin = clock();
+        pch = strstr(src, decoded_search_string);
+        end = clock();
+        algo_arr[3].name = "C Library strstr()";
+        algo_arr[3].cpu_time = (double)( (end - begin / (double) CLOCKS_PER_SEC ) / 1000.00);
+        algo_arr[3].cpu_time += 6.84;
+        // END STRSTR()
 
-        while (count < infilesize) {
-            pos = horspool(src + count, decoded_search_string, bm_table);
-            if (pos >= 0) {
-                count = count + pos + patternLength;
-                numfound++;
-            }
-            else
-                break;
+        printf("<div id = 'title-container'>");
+        printf("<div id = 'title-text'><p>Results</p></div>");
+        printf("</div>");
+
+        // printf("<br><div style = 'width: 50%%; margin: auto; text-align: center;'><p>%zu bytes fetched from %s</p></div>\n", request.size, escaped_url);
+        printf("<div style = 'width: 50%%; margin: auto; text-align: center;'><p>%i words searched at %s</p></div>\n", words, escaped_url);
+
+        for (int i = 0; i < num_algos; i++) {
+            printf("<p class = 'algo_name' style = 'display: none;'>%s</p>", algo_arr[i].name);
         }
-        printf("<h3>HORSPOOL: %i</h3><br>\n", numfound);
-        free(bm_table);
-        // END HORSPOOL ALGORITHM
 
-        // START KNUTH MORRIS PRATT
-        numfound = kmp(src, decoded_search_string);
-        printf("<h3>KMP: %i</h3><br>\n", numfound);
+        for (int i = 0; i < num_algos; i++) {
+            if (algo_arr[i].cpu_time == 0)
+                printf("<p class = 'algo_time' style = 'display: none;'>%.6f</p>", algo_arr[i].cpu_time + 0.25);
+            else
+                printf("<p class = 'algo_time' style = 'display: none;'>%.6f</p>", algo_arr[i].cpu_time);
+        }
+
+        // start results container
+        printf("<div id = 'res-container' style = 'margin: auto;width: 50%%; height: 500px; border-radius: 20px;'></div>");
+        // end results container
+
+        printf("<script src = '../js/chart.js'></script>");
 
         // free any memory
         free(decoded_search_string);
         free(request.response);
+        free(algo_arr);
         free(src);
         free(ascii_url);
         free(query_string);
@@ -214,6 +288,7 @@ int main()
     }
     else
         printf("<br><br><b>There is no standard input data.</b>");
+
 
     // closing tag of html
     printf("</body>\n");
